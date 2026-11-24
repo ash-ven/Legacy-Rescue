@@ -15,6 +15,7 @@ L'applicazione è inventata apposta: un'API di magazzino usata da più aziende (
 |---|---|---|---|
 | 1 | `passo-1-legacy` | Il codice com'è: un solo file, nessun test | [01-legacy](docs/passi/01-legacy.md) |
 | 2 | `passo-2-rete-di-test` | 30 test di caratterizzazione che fotografano il comportamento attuale, difetti compresi; CI | [02-rete-di-test](docs/passi/02-rete-di-test.md) |
+| 3 | `passo-3-refactoring` | Rotte, servizi e repository: stesso comportamento, nessun test cambiato; ESLint | [03-refactoring](docs/passi/03-refactoring.md) |
 
 ## Test
 
@@ -22,6 +23,7 @@ L'applicazione è inventata apposta: un'API di magazzino usata da più aziende (
 npm test                     # Mocha + Supertest su un MongoDB in memoria (nessun servizio da avviare)
 npm run test:coverage        # copertura con c8
 npm run test:update-golden   # riscrive le fotografie in test/golden: solo di proposito, poi rileggere git diff
+npm run lint                 # ESLint
 ```
 
 ## Provarla in locale

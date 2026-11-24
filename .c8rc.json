@@ -3,5 +3,5 @@
   "include": ["src/**/*.js"],
   "reporter": ["text", "lcov"],
   "check-coverage": true,
-  "lines": 85
+  "lines": 90
 }
