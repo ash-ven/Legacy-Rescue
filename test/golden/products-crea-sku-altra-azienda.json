@@ -1,0 +1,12 @@
+{
+  "status": 201,
+  "contentType": "application/json; charset=utf-8",
+  "body": {
+    "sku": "VIT-4",
+    "name": "Vite (pianta)",
+    "tenantId": "bianchi",
+    "qty": 0,
+    "minQty": 0,
+    "_id": "<id-1>"
+  }
+}

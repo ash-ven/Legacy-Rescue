@@ -1,0 +1,7 @@
+{
+  "status": 500,
+  "contentType": "application/json; charset=utf-8",
+  "body": {
+    "error": "E11000 duplicate key error collection: legacy-rescue-test.products index: tenantId_1_sku_1 dup key: { tenantId: \"rossi\", sku: \"VIT-4\" }"
+  }
+}

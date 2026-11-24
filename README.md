@@ -14,6 +14,15 @@ L'applicazione è inventata apposta: un'API di magazzino usata da più aziende (
 | Passo | Tag | Cosa succede | Scheda |
 |---|---|---|---|
 | 1 | `passo-1-legacy` | Il codice com'è: un solo file, nessun test | [01-legacy](docs/passi/01-legacy.md) |
+| 2 | `passo-2-rete-di-test` | 30 test di caratterizzazione che fotografano il comportamento attuale, difetti compresi; CI | [02-rete-di-test](docs/passi/02-rete-di-test.md) |
+
+## Test
+
+```bash
+npm test                     # Mocha + Supertest su un MongoDB in memoria (nessun servizio da avviare)
+npm run test:coverage        # copertura con c8
+npm run test:update-golden   # riscrive le fotografie in test/golden: solo di proposito, poi rileggere git diff
+```
 
 ## Provarla in locale
 

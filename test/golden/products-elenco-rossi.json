@@ -1,0 +1,33 @@
+{
+  "status": 200,
+  "contentType": "application/json; charset=utf-8",
+  "body": [
+    {
+      "_id": "<id-1>",
+      "tenantId": "rossi",
+      "sku": "CHI-8",
+      "name": "Chiodi, 8cm",
+      "price": 0.05,
+      "qty": 20,
+      "minQty": 50
+    },
+    {
+      "_id": "<id-2>",
+      "tenantId": "rossi",
+      "sku": "MAR-1",
+      "name": "Martello",
+      "price": 12.5,
+      "qty": 3,
+      "minQty": 5
+    },
+    {
+      "_id": "<id-3>",
+      "tenantId": "rossi",
+      "sku": "VIT-4",
+      "name": "Viti, 4mm",
+      "price": 0.1,
+      "qty": 100,
+      "minQty": 10
+    }
+  ]
+}

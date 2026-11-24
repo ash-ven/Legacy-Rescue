@@ -1,0 +1,11 @@
+# Regole di gitleaks: quelle standard, più un'unica eccezione mirata.
+# Le chiavi test-key-rossi e test-key-bianchi sono finte, servono ai dati di prova e compaiono di proposito
+# negli esempi curl della documentazione. Qualsiasi altra chiave continua a essere segnalata.
+title = "legacy-rescue"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Chiavi finte dei dati di prova (documentate nel README)"
+regexes = ['''test-key-(rossi|bianchi)''']

@@ -156,13 +156,26 @@ app.get('/reports/low-stock.csv', function (req, res) {
 
 // ---------------- AVVIO ----------------
 
-var url = process.env.MONGO_URL || 'mongodb://localhost:27017/legacy-rescue';
-var port = process.env.PORT || 3000;
-MongoClient.connect(url).then(function (client) {
-  db = client.db();
-  return db.collection('products').createIndex({ tenantId: 1, sku: 1 }, { unique: true });
-}).then(function () {
-  app.listen(port, function () {
-    console.log('Magazzino API in ascolto sulla porta ' + port);
+function start() {
+  var url = process.env.MONGO_URL || 'mongodb://localhost:27017/legacy-rescue';
+  var port = process.env.PORT || 3000;
+  MongoClient.connect(url).then(function (client) {
+    db = client.db();
+    return db.collection('products').createIndex({ tenantId: 1, sku: 1 }, { unique: true });
+  }).then(function () {
+    app.listen(port, function () {
+      console.log('Magazzino API in ascolto sulla porta ' + port);
+    });
   });
-});
+}
+
+// Cucitura per i test (passo 2): l'avvio parte solo se il file viene eseguito,
+// e i test possono passare il proprio database. Nient'altro cambia.
+if (require.main === module) {
+  start();
+}
+
+module.exports = {
+  app: app,
+  setDb: function (d) { db = d; }
+};

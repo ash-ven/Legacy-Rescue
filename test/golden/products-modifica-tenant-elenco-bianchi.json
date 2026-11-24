@@ -1,0 +1,24 @@
+{
+  "status": 200,
+  "contentType": "application/json; charset=utf-8",
+  "body": [
+    {
+      "_id": "<id-1>",
+      "tenantId": "bianchi",
+      "sku": "MAR-1",
+      "name": "Martello",
+      "price": 12.5,
+      "qty": 3,
+      "minQty": 5
+    },
+    {
+      "_id": "<id-2>",
+      "tenantId": "bianchi",
+      "sku": "MEL-1",
+      "name": "Mele",
+      "price": 2.2,
+      "qty": 50,
+      "minQty": 10
+    }
+  ]
+}

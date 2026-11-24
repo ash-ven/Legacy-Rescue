@@ -1,0 +1,18 @@
+{
+  "status": 200,
+  "contentType": "application/json; charset=utf-8",
+  "body": {
+    "_id": "<id-1>",
+    "tenantId": "rossi",
+    "items": [
+      {
+        "productId": "<id-2>",
+        "sku": "VIT-4",
+        "qty": 1,
+        "price": 0.1
+      }
+    ],
+    "total": 0.1,
+    "createdAt": "2026-11-24T09:00:00.000Z"
+  }
+}
