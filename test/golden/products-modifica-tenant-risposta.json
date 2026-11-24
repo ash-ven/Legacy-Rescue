@@ -3,7 +3,7 @@
   "contentType": "application/json; charset=utf-8",
   "body": {
     "_id": "<id-1>",
-    "tenantId": "bianchi",
+    "tenantId": "rossi",
     "sku": "MAR-1",
     "name": "Martello",
     "price": 12.5,

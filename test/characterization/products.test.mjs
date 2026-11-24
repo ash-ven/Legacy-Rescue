@@ -55,7 +55,7 @@ describe('PUT /products/:id (comportamento attuale)', () => {
     expectGolden('products-modifica-altra-azienda', await bianchi().put(`/products/${ids.martello}`, { price: 1 }));
   });
 
-  it("[difetto] il corpo può cambiare tenantId e spostare il prodotto a un'altra azienda", async () => {
+  it("[corretto al passo 5] tenantId nel corpo viene ignorato: il prodotto resta all'azienda", async () => {
     expectGolden('products-modifica-tenant-risposta', await rossi().put(`/products/${ids.martello}`, { tenantId: 'bianchi' }));
     expectGolden('products-modifica-tenant-elenco-bianchi', await bianchi().get('/products'));
   });

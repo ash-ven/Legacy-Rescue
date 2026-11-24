@@ -8,7 +8,7 @@ const { insertOrder } = require('../repositories/orders');
 // Stesso comportamento del legacy, stranezze comprese (totale non arrotondato, quantità non validate).
 async function createOrder(db, tenant, items) {
   const ids = items.map((item) => new ObjectId(item.productId));
-  const products = await findProductsByIds(db, ids);
+  const products = await findProductsByIds(db, tenant._id, ids);
 
   const order = { tenantId: tenant._id, items: [], total: 0, createdAt: new Date() };
   for (const item of items) {

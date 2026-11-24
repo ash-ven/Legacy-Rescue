@@ -2,6 +2,9 @@ const { ObjectId } = require('mongodb');
 
 const products = (db) => db.collection('products');
 
+// Gli unici campi che una modifica può toccare: tenantId, _id e sku restano fuori.
+const EDITABLE_FIELDS = ['name', 'price', 'qty', 'minQty'];
+
 function listProducts(db, tenantId, { search } = {}) {
   const query = { tenantId };
   if (search) {
@@ -16,22 +19,25 @@ async function insertProduct(db, product) {
   return product;
 }
 
-// NB (comportamento legacy, fotografato al passo 2): applica tutti i campi ricevuti, tenantId compreso.
+// Applica solo i campi modificabili; gli altri vengono ignorati. Sempre filtrato per azienda.
 function updateProduct(db, tenantId, id, changes) {
-  return products(db).findOneAndUpdate(
-    { _id: new ObjectId(id), tenantId },
-    { $set: changes },
-    { returnDocument: 'after' }
+  const filter = { _id: new ObjectId(id), tenantId };
+  const allowed = Object.fromEntries(
+    Object.entries(changes).filter(([field]) => EDITABLE_FIELDS.includes(field))
   );
+  if (Object.keys(allowed).length === 0) {
+    return products(db).findOne(filter);
+  }
+  return products(db).findOneAndUpdate(filter, { $set: allowed }, { returnDocument: 'after' });
 }
 
-// NB (comportamento legacy, fotografato al passo 2): cerca per _id senza filtrare per azienda.
-function findProductsByIds(db, ids) {
-  return products(db).find({ _id: { $in: ids } }).toArray();
+// Sempre filtrato per azienda: un prodotto di un'altra azienda risulta inesistente.
+function findProductsByIds(db, tenantId, ids) {
+  return products(db).find({ _id: { $in: ids }, tenantId }).toArray();
 }
 
 function incrementStock(db, productId, delta) {
   return products(db).updateOne({ _id: productId }, { $inc: { qty: delta } });
 }
 
-module.exports = { listProducts, insertProduct, updateProduct, findProductsByIds, incrementStock };
+module.exports = { EDITABLE_FIELDS, listProducts, insertProduct, updateProduct, findProductsByIds, incrementStock };

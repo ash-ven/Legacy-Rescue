@@ -6,9 +6,9 @@ function listOrders(db, tenantId) {
   return orders(db).find({ tenantId }).sort({ _id: 1 }).toArray();
 }
 
-// NB (comportamento legacy, fotografato al passo 2): cerca per _id senza filtrare per azienda.
-function findOrderById(db, id) {
-  return orders(db).findOne({ _id: new ObjectId(id) });
+// Sempre filtrato per azienda: un ordine di un'altra azienda risulta inesistente.
+function findOrderById(db, tenantId, id) {
+  return orders(db).findOne({ _id: new ObjectId(id), tenantId });
 }
 
 // Il driver aggiunge _id all'oggetto inserito.

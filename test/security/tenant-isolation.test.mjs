@@ -1,6 +1,6 @@
 // Test di accettazione sull'isolamento tra aziende: descrivono come DEVE funzionare.
-// Quelli marcati "it.skip" oggi fallirebbero: restano in pausa finché non arriva la correzione (passo 5),
-// così la suite resta verde ma il difetto è scritto, visibile come "pending" e pronto da verificare.
+// I tre del gruppo "corretto al passo 5" erano in pausa (it.skip) al passo 4, quando fallivano;
+// la correzione li ha riattivati e ora sono la prova che il difetto non torna.
 import { expect } from 'chai';
 import { api } from '../support/api.mjs';
 import { KEYS } from '../support/fixtures.mjs';
@@ -37,15 +37,15 @@ describe('Isolamento tra aziende', () => {
     });
   });
 
-  describe('in pausa fino alla correzione (passo 5)', () => {
-    it.skip("[in pausa] un'azienda non può leggere l'ordine di un'altra: 404", async () => {
+  describe('corretto al passo 5', () => {
+    it("un'azienda non può leggere l'ordine di un'altra: 404", async () => {
       const ordine = await rossi().post('/orders', { items: [{ productId: ids.viti, qty: 1 }] });
       const res = await bianchi().get(`/orders/${ordine.body._id}`);
       expect(res.status).to.equal(404);
       expect(res.body).to.deep.equal({ error: 'order not found' });
     });
 
-    it.skip("[in pausa] modificare un prodotto non può cambiarne l'azienda", async () => {
+    it("modificare un prodotto non può cambiarne l'azienda", async () => {
       const res = await rossi().put(`/products/${ids.martello}`, { tenantId: 'bianchi', price: 13 });
       expect(res.status).to.equal(200);
       expect(res.body.tenantId).to.equal('rossi');
@@ -53,7 +53,7 @@ describe('Isolamento tra aziende', () => {
       expect(skus(await bianchi().get('/products'))).to.not.include('MAR-1');
     });
 
-    it.skip("[in pausa] un ordine non può usare i prodotti di un'altra azienda: 404, scorte intatte", async () => {
+    it("un ordine non può usare i prodotti di un'altra azienda: 404, scorte intatte", async () => {
       const res = await rossi().post('/orders', { items: [{ productId: ids.mele, qty: 5 }] });
       expect(res.status).to.equal(404);
       expect(res.body).to.deep.equal({ error: 'product not found' });

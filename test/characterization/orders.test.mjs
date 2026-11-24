@@ -53,9 +53,9 @@ describe('POST /orders (comportamento attuale)', () => {
     expectGolden('orders-vuoto', await ordina(rossi, []));
   });
 
-  it("[difetto] si può ordinare un prodotto di un'altra azienda, e se ne scalano le scorte", async () => {
+  it("[corretto al passo 5] un prodotto di un'altra azienda risulta inesistente e le sue scorte non cambiano", async () => {
     expectGolden('orders-prodotto-altra-azienda', await ordina(rossi, [{ productId: ids.mele, qty: 5 }]));
-    expect(await scorte(bianchi, 'MEL-1')).to.equal(45);
+    expect(await scorte(bianchi, 'MEL-1')).to.equal(50);
   });
 });
 
@@ -71,7 +71,7 @@ describe('GET /orders e /orders/:id (comportamento attuale)', () => {
     expectGolden('orders-dettaglio', await rossi().get(`/orders/${creato.body._id}`));
   });
 
-  it("[difetto] legge anche il dettaglio di un ordine di un'altra azienda", async () => {
+  it("[corretto al passo 5] l'ordine di un'altra azienda risulta inesistente", async () => {
     const creato = await ordina(rossi, [{ productId: ids.viti, qty: 1 }]);
     expectGolden('orders-dettaglio-altra-azienda', await bianchi().get(`/orders/${creato.body._id}`));
   });

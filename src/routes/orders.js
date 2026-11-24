@@ -11,7 +11,7 @@ function ordersRouter(db) {
   }));
 
   router.get('/:id', asyncHandler(async (req, res) => {
-    const order = await findOrderById(db, req.params.id);
+    const order = await findOrderById(db, req.tenantId, req.params.id);
     if (!order) {
       throw new HttpError(404, 'order not found');
     }
