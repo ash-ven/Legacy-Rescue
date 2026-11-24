@@ -1,0 +1,20 @@
+{
+  "name": "legacy-rescue",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Salvataggio di un'API legacy in passi: test di caratterizzazione, refactoring, test di sicurezza tra tenant, correzioni.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "seed": "node scripts/seed-demo.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "author": "Asiha Venturi",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.22.3",
+    "mongodb": "^6.22.0"
+  }
+}

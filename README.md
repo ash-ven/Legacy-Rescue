@@ -1,0 +1,53 @@
+# legacy-rescue
+
+Come si mette in sicurezza un'API legacy **senza riscriverla da zero**: prima la si fotografa con i test, poi la si
+riordina, poi si correggono i difetti di sicurezza, un passo alla volta. Ogni passo è un commit con un tag: si può
+aprire, eseguire e confrontare con il precedente.
+
+L'applicazione è inventata apposta: un'API di magazzino usata da più aziende (multi-tenant). Il codice di partenza è
+**volutamente scritto male**, come capita di trovarlo nei progetti veri.
+
+> Storia in corso: i passi si aggiungono uno alla volta.
+
+## I passi
+
+| Passo | Tag | Cosa succede | Scheda |
+|---|---|---|---|
+| 1 | `passo-1-legacy` | Il codice com'è: un solo file, nessun test | [01-legacy](docs/passi/01-legacy.md) |
+
+## Provarla in locale
+
+Servono Node 22 e Docker (solo per avviare l'API: i test, dal passo 2, non ne hanno bisogno).
+
+```bash
+npm install
+docker compose up -d     # MongoDB su localhost:27017
+npm run seed             # due aziende inventate: Ferramenta Rossi e Ortofrutta Bianchi
+npm start                # API su http://localhost:3000
+curl -H "x-api-key: test-key-rossi" http://localhost:3000/products
+```
+
+Le chiavi `test-key-rossi` e `test-key-bianchi` sono finte e servono solo in locale.
+
+## Rotte
+
+| Rotta | Cosa fa |
+|---|---|
+| `GET /products?search=&low_stock=1` | prodotti dell'azienda, con ricerca per nome e filtro sotto scorta |
+| `POST /products` | crea un prodotto |
+| `PUT /products/:id` | modifica un prodotto |
+| `GET /orders` | ordini dell'azienda |
+| `GET /orders/:id` | dettaglio di un ordine |
+| `POST /orders` | crea un ordine, scala le scorte e avvisa l'azienda con una chiamata HTTP |
+| `GET /reports/low-stock.csv` | CSV dei prodotti sotto scorta |
+
+Ogni richiesta porta l'header `x-api-key`, che dice di quale azienda è.
+
+## Come è stato fatto
+
+Progettato con un metodo a passi (design → piano → implementazione → revisione) e sviluppato con l'aiuto di
+Claude Code; ogni scelta è spiegata nelle schede in `docs/passi/`. Design e piano sono in `docs/superpowers/`.
+
+## Licenza
+
+MIT

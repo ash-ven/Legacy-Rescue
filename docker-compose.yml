@@ -1,0 +1,6 @@
+# MongoDB per provare l'API in locale (i test non ne hanno bisogno: usano un database in memoria).
+services:
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
