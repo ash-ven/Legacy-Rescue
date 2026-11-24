@@ -2,9 +2,6 @@ const { ObjectId } = require('mongodb');
 
 const products = (db) => db.collection('products');
 
-// Gli unici campi che una modifica può toccare: tenantId, _id e sku restano fuori.
-const EDITABLE_FIELDS = ['name', 'price', 'qty', 'minQty'];
-
 // La ricerca è testo semplice: i caratteri speciali delle espressioni regolari non hanno effetto.
 const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -22,16 +19,13 @@ async function insertProduct(db, product) {
   return product;
 }
 
-// Applica solo i campi modificabili; gli altri vengono ignorati. Sempre filtrato per azienda.
+// Applica le modifiche già validate (vedi parseProductChanges). Sempre filtrato per azienda.
 function updateProduct(db, tenantId, id, changes) {
   const filter = { _id: new ObjectId(id), tenantId };
-  const allowed = Object.fromEntries(
-    Object.entries(changes).filter(([field]) => EDITABLE_FIELDS.includes(field))
-  );
-  if (Object.keys(allowed).length === 0) {
+  if (Object.keys(changes).length === 0) {
     return products(db).findOne(filter);
   }
-  return products(db).findOneAndUpdate(filter, { $set: allowed }, { returnDocument: 'after' });
+  return products(db).findOneAndUpdate(filter, { $set: changes }, { returnDocument: 'after' });
 }
 
 // Sempre filtrato per azienda: un prodotto di un'altra azienda risulta inesistente.
@@ -39,8 +33,19 @@ function findProductsByIds(db, tenantId, ids) {
   return products(db).find({ _id: { $in: ids }, tenantId }).toArray();
 }
 
-function incrementStock(db, productId, delta) {
-  return products(db).updateOne({ _id: productId }, { $inc: { qty: delta } });
+// Scala le scorte solo se bastano, in un'unica operazione atomica: due ordini contemporanei
+// non possono vendere la stessa merce. Restituisce false se le scorte non bastano più.
+async function decrementStock(db, tenantId, productId, qty) {
+  const result = await products(db).updateOne(
+    { _id: productId, tenantId, qty: { $gte: qty } },
+    { $inc: { qty: -qty } }
+  );
+  return result.matchedCount === 1;
 }
 
-module.exports = { EDITABLE_FIELDS, listProducts, insertProduct, updateProduct, findProductsByIds, incrementStock };
+// Rimette le scorte (compensazione quando un ordine non va a buon fine).
+function incrementStock(db, tenantId, productId, qty) {
+  return products(db).updateOne({ _id: productId, tenantId }, { $inc: { qty } });
+}
+
+module.exports = { listProducts, insertProduct, updateProduct, findProductsByIds, decrementStock, incrementStock };

@@ -9,7 +9,7 @@ dichiara prima, il codice segue, la fotografia si aggiorna di proposito.
 | Prima | Dopo |
 |---|---|
 | totale `0.30000000000000004` | totale arrotondato ai centesimi: `0.3` |
-| CSV rotto con `Chiodi, 8cm` | campi tra virgolette secondo l'RFC 4180: `"Chiodi, 8cm"` |
+| CSV rotto con `Chiodi, 8cm` | campi tra virgolette secondo l'RFC 4180: `"Chiodi, 8cm"` (i fine riga CRLF richiesti dall'RFC arrivano al passo 7) |
 | quantità negativa: ordine creato, scorte **aumentate** | 400 `invalid items`, scorte intatte |
 | ordine senza articoli: creato, totale 0 | 400 `invalid items` |
 | `productId` non valido: 500 | 400 `invalid items` |
@@ -40,8 +40,8 @@ dichiara prima, il codice segue, la fotografia si aggiorna di proposito.
 ## Come si verifica
 ```bash
 npm test                                                          # 53 verdi
-git diff passo-5-correzioni --stat -- test/golden                 # 4 modificate, 3 nuove
-npm run lint && npm run test:coverage                             # lint pulito, copertura 92%
+git diff passo-5-correzioni passo-6-cambio-voluto --stat -- test/golden   # 4 modificate, 3 nuove
+npm run lint && npm run test:coverage                             # lint pulito, copertura 92% (al passo 6)
 ```
 
 ## Domande probabili in colloquio
@@ -50,7 +50,7 @@ npm run lint && npm run test:coverage                             # lint pulito,
   rosso che non ho previsto è una regressione.
 - **"Perché `0.1 * 3` non fa `0.3`?"** Perché i numeri in virgola mobile sono in base 2 e `0.1` non ha una
   rappresentazione esatta. Per i soldi si usano interi in centesimi, o almeno si arrotonda in un punto preciso.
-- **"Cosa dice l'RFC 4180?"** Che un campo con virgola, virgolette o a capo va tra virgolette, e le virgolette interne
+- **"Cosa dice l'RFC 4180?"** Che ogni riga termina con CRLF e che un campo con virgola, virgolette o a capo va tra virgolette, e le virgolette interne
   si raddoppiano.
 - **"Perché validare prima di toccare il database?"** Per non scrivere dati incoerenti (scorte che salgono con un
   ordine) e per rispondere con un errore che il client capisce.

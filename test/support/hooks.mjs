@@ -3,9 +3,10 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { MongoClient } from 'mongodb';
 import sinon from 'sinon';
+import dbModule from '../../src/db.js';
 import { seed } from './fixtures.mjs';
 
-// In ambiente "test" Express non stampa lo stack degli errori 500 sul terminale.
+// In ambiente "test" gli errori 500 non vengono stampati sul terminale.
 process.env.NODE_ENV ??= 'test';
 
 export const CLOCK = new Date('2026-11-24T09:00:00.000Z');
@@ -31,7 +32,7 @@ export const mochaHooks = {
 
   async beforeEach() {
     await db.dropDatabase();
-    await db.collection('products').createIndex({ tenantId: 1, sku: 1 }, { unique: true });
+    await dbModule.ensureIndexes(db); // gli stessi indici dell'applicazione
     ids = await seed(db);
     // Nessuna chiamata vera verso i webhook delle aziende.
     sinon.stub(globalThis, 'fetch').resolves(new Response(null, { status: 204 }));

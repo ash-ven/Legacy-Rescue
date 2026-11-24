@@ -49,7 +49,7 @@ Il legacy si connetteva al database appena caricato, quindi non si poteva testar
 npm test                  # 30 test verdi
 npm run test:coverage     # copertura sopra l'85%
 ```
-Per vedere la rete funzionare: cambia in `src/server.js` il messaggio `'missing api key'` e rilancia `npm test`. Il test
+Per vedere la rete funzionare: cambia il messaggio `'missing api key'` (al passo 2 è in `src/server.js`, dal passo 3 in `src/middleware/tenant.js`) e rilancia `npm test`. Il test
 dell'autenticazione diventa rosso e mostra la differenza.
 
 ## Domande probabili in colloquio

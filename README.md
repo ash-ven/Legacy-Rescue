@@ -12,8 +12,9 @@ L'applicazione è inventata apposta: un'API di magazzino usata da più aziende (
 > **In English.** A step-by-step rescue of a deliberately messy multi-tenant Node.js/Express/MongoDB API:
 > characterization tests with golden masters pin the legacy behaviour (defects included), a refactor into
 > routes/services/repositories keeps every test untouched, tenant-isolation acceptance tests (BOLA, mass assignment)
-> stay pending until the fix, and finally intentional behaviour changes are made test-first. One commit and one tag per
-> step; CI runs tests with coverage, ESLint and gitleaks. Docs are in Italian.
+> stay pending until the fix, and intentional behaviour changes are made test-first. A final independent review found a
+> stock race condition and mass assignment on create, both fixed test-first. One commit and one tag per step; CI runs
+> tests with coverage, ESLint and gitleaks. Docs are in Italian.
 
 ## I passi
 
@@ -25,6 +26,7 @@ L'applicazione è inventata apposta: un'API di magazzino usata da più aziende (
 | 4 | `passo-4-test-di-sicurezza-in-pausa` | Test di isolamento tra aziende: 4 già verdi, 3 in pausa che descrivono i difetti | [04-test-in-pausa](docs/passi/04-test-in-pausa.md) |
 | 5 | `passo-5-correzioni` | Filtro per azienda nei repository e campi modificabili: i test in pausa si attivano | [05-correzioni](docs/passi/05-correzioni.md) |
 | 6 | `passo-6-cambio-voluto` | Totali in centesimi, CSV corretto, input validati: cambi voluti, test prima | [06-cambio-voluto](docs/passi/06-cambio-voluto.md) |
+| 7 | `passo-7-revisione` | Revisione indipendente: vendita oltre le scorte, mass assignment in creazione, errori senza dettagli interni | [07-revisione](docs/passi/07-revisione.md) |
 
 Per vedere un passo: `git checkout passo-3-refactoring && npm ci && npm test`.
 Per vedere cosa è cambiato: `git diff passo-2-rete-di-test passo-3-refactoring --stat`.
@@ -34,6 +36,8 @@ Per vedere cosa è cambiato: `git diff passo-2-rete-di-test passo-3-refactoring 
 - **Refactoring sicuro** a test invariati, con controprova che la rete se ne accorge
 - **Test di sicurezza multi-tenant** (OWASP API: BOLA e mass assignment), tenuti in pausa fino alla correzione
 - **Cambi di comportamento dichiarati**: attesa nel test prima, codice dopo, fotografia aggiornata solo dove serve
+- **Race condition** riprodotta con un test e corretta con uno scarico atomico delle scorte
+- **Revisione indipendente** dopo l'ultimo passo, con ogni problema trovato chiuso da un test
 - **Sinon** per orologio finto e stub di `fetch`; MongoDB vero ma in memoria
 - **CI** su GitHub Actions: test con copertura (soglia 90%), ESLint, gitleaks
 
@@ -65,15 +69,16 @@ npm run lint                 # ESLint
 | Rotta | Cosa fa |
 |---|---|
 | `GET /products?search=&low_stock=1` | prodotti dell'azienda, con ricerca per nome (testo semplice) e filtro sotto scorta |
-| `POST /products` | crea un prodotto |
+| `POST /products` | crea un prodotto (`sku`, `name`, `price`, `qty`, `minQty`; gli altri campi sono ignorati) |
 | `PUT /products/:id` | modifica `name`, `price`, `qty`, `minQty` di un prodotto dell'azienda |
 | `GET /orders` | ordini dell'azienda |
 | `GET /orders/:id` | dettaglio di un ordine dell'azienda (404 per quelli di altri) |
-| `POST /orders` | crea un ordine con prodotti dell'azienda, scala le scorte e avvisa l'azienda via webhook |
+| `POST /orders` | crea un ordine con prodotti dell'azienda, scala le scorte senza mai andare sotto zero e avvisa l'azienda via webhook |
 | `GET /reports/low-stock.csv` | CSV dei prodotti sotto scorta (RFC 4180) |
 
-Ogni richiesta porta l'header `x-api-key`, che dice di quale azienda è. Errori: `401` chiave mancante o sconosciuta,
-`400` input non valido, `404` risorsa inesistente o di un'altra azienda.
+Ogni richiesta porta l'header `x-api-key`, che dice di quale azienda è. Gli errori sono sempre in JSON
+(`{"error": "..."}`) e senza dettagli interni: `400` input non valido, `401` chiave mancante o sconosciuta,
+`404` risorsa inesistente o di un'altra azienda, `409` SKU già usato, `500` errore inatteso.
 
 ## Come è stato fatto
 

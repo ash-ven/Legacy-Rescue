@@ -1,5 +1,5 @@
 {
   "status": 200,
   "contentType": "text/csv; charset=utf-8",
-  "body": "sku,name,qty,minQty\nCHI-8,\"Chiodi, 8cm\",20,50\nMAR-1,Martello,3,5\n"
+  "body": "sku,name,qty,minQty\r\nCHI-8,\"Chiodi, 8cm\",20,50\r\nMAR-1,Martello,3,5\r\n"
 }

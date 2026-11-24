@@ -20,7 +20,7 @@ src/
 
 ## La prova che il comportamento non è cambiato
 - I 30 test di caratterizzazione e le 25 fotografie **non sono stati toccati**:
-  `git diff passo-2-rete-di-test -- test/characterization test/golden` è vuoto.
+  `git diff passo-2-rete-di-test passo-3-refactoring -- test/characterization test/golden` è vuoto.
 - L'unico file di test cambiato è `test/support/app.mjs`, l'adattatore che costruisce l'app: prima usava la cucitura
   del legacy (`setDb`), ora usa `createApp({ db })`. È stato pensato apposta al passo 2 per isolare questo cambio.
 - **Controprova:** cambiando di nascosto il messaggio `missing api key` il test dell'autenticazione diventa rosso e
@@ -41,7 +41,7 @@ src/
 
 ## Come si verifica
 ```bash
-git diff passo-2-rete-di-test -- test/characterization test/golden   # vuoto
+git diff passo-2-rete-di-test passo-3-refactoring -- test/characterization test/golden   # vuoto
 npm test && npm run lint && npm run test:coverage
 ```
 

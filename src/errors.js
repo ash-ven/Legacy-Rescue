@@ -1,5 +1,3 @@
-const { MongoError } = require('mongodb');
-
 // Errore con un codice HTTP preciso (404, 400...), lanciato da servizi e rotte.
 class HttpError extends Error {
   constructor(status, message) {
@@ -17,18 +15,26 @@ function asyncHandler(fn) {
   };
 }
 
-// Stesso comportamento del legacy:
-// - errori "previsti" → il loro codice con { error }
-// - errori di MongoDB → 500 con { error: messaggio }
-// - tutto il resto (ID non valido, ricerca non valida) → pagina d'errore 500 di Express
+// Risposte d'errore sempre in JSON e senza dettagli interni:
+// - errori previsti → il loro codice e messaggio;
+// - corpo JSON malformato → 400 "invalid json";
+// - altri errori della richiesta segnalati da Express (es. corpo troppo grande) → il loro codice;
+// - tutto il resto → 500 "internal error"; il dettaglio va solo nel log del server.
+// eslint-disable-next-line no-unused-vars -- Express riconosce il gestore dai 4 parametri
 function errorHandler(err, req, res, next) {
   if (err instanceof HttpError) {
     return res.status(err.status).json({ error: err.message });
   }
-  if (err instanceof MongoError) {
-    return res.status(500).json({ error: err.message });
+  if (err.type === 'entity.parse.failed') {
+    return res.status(400).json({ error: 'invalid json' });
   }
-  return next(err);
+  if (err.expose && err.status >= 400 && err.status < 500) {
+    return res.status(err.status).json({ error: err.message });
+  }
+  if (process.env.NODE_ENV !== 'test') {
+    console.error(err);
+  }
+  return res.status(500).json({ error: 'internal error' });
 }
 
 module.exports = { HttpError, asyncHandler, errorHandler };

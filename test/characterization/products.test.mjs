@@ -38,12 +38,17 @@ describe('POST /products (comportamento attuale)', () => {
     expectGolden('products-crea-senza-sku', await rossi().post('/products', { name: 'Senza codice' }));
   });
 
-  it("uno sku già usato nella stessa azienda risponde 500 con l'errore di MongoDB", async () => {
-    expectGolden('products-crea-sku-doppio', await rossi().post('/products', { sku: 'VIT-4', name: 'Altre viti' }));
+  it('[cambiato al passo 7] uno sku già usato nella stessa azienda risponde 409, senza dettagli del database', async () => {
+    const res = await rossi().post('/products', { sku: 'VIT-4', name: 'Altre viti' });
+    expect(res.status).to.equal(409);
+    expect(res.body).to.deep.equal({ error: 'sku already exists' });
+    expectGolden('products-crea-sku-doppio', res);
   });
 
-  it("lo stesso sku in un'altra azienda è permesso", async () => {
-    expectGolden('products-crea-sku-altra-azienda', await bianchi().post('/products', { sku: 'VIT-4', name: 'Vite (pianta)' }));
+  it("[cambiato al passo 7] lo stesso sku in un'altra azienda è permesso; il prezzo mancante vale 0", async () => {
+    const res = await bianchi().post('/products', { sku: 'VIT-4', name: 'Vite (pianta)' });
+    expect(res.body.price).to.equal(0);
+    expectGolden('products-crea-sku-altra-azienda', res);
   });
 });
 

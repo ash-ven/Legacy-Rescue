@@ -36,7 +36,7 @@ Nessun'altra fotografia è cambiata.
 ## Come si verifica
 ```bash
 npm test                                      # 37 verdi, 0 pending
-git diff passo-4-test-di-sicurezza-in-pausa --stat -- test/golden   # solo le 4 fotografie della tabella
+git diff passo-4-test-di-sicurezza-in-pausa passo-5-correzioni --stat -- test/golden   # solo le 4 fotografie della tabella
 ```
 
 ## Domande probabili in colloquio

@@ -11,6 +11,11 @@ describe('GET /reports/low-stock.csv (comportamento attuale)', () => {
     expectGolden('reports-sotto-scorta-rossi', res);
   });
 
+  it('[cambiato al passo 7] ogni riga termina con CRLF, come chiede l\'RFC 4180', async () => {
+    const res = await api(KEYS.rossi).get('/reports/low-stock.csv');
+    expect(res.text).to.equal('sku,name,qty,minQty\r\nCHI-8,"Chiodi, 8cm",20,50\r\nMAR-1,Martello,3,5\r\n');
+  });
+
   it('senza prodotti sotto scorta restituisce solo la riga di intestazione', async () => {
     expectGolden('reports-sotto-scorta-bianchi', await api(KEYS.bianchi).get('/reports/low-stock.csv'));
   });

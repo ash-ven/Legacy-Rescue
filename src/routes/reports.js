@@ -9,11 +9,10 @@ function reportsRouter(db) {
 
   router.get('/low-stock.csv', asyncHandler(async (req, res) => {
     const products = await listProducts(db, req.tenantId);
-    const rows = products
-      .filter(isLowStock)
-      .map((p) => `${toCsvRow([p.sku, p.name, p.qty, p.minQty])}\n`);
+    // RFC 4180: ogni riga, intestazione compresa, termina con CRLF.
+    const lines = [['sku', 'name', 'qty', 'minQty'], ...products.filter(isLowStock).map((p) => [p.sku, p.name, p.qty, p.minQty])];
     res.set('Content-Type', 'text/csv');
-    res.send(`sku,name,qty,minQty\n${rows.join('')}`);
+    res.send(lines.map((line) => `${toCsvRow(line)}\r\n`).join(''));
   }));
 
   return router;

@@ -5,8 +5,10 @@
 > un'API di magazzino multi-tenant scritta apposta "alla vecchia". Prima l'ho fotografata con 30 test di
 > caratterizzazione, difetti compresi; poi l'ho riordinata in rotte, servizi e repository senza cambiare un test; poi
 > ho scritto i test di sicurezza sull'isolamento tra aziende, tenuti in pausa finché non è arrivata la correzione; alla
-> fine ho trasformato le stranezze in comportamenti corretti, un cambio voluto alla volta. Ogni passo è un commit con un
-> tag, e la CI esegue test, copertura, lint e controllo dei segreti.
+> fine ho trasformato le stranezze in comportamenti corretti, un cambio voluto alla volta. Poi una revisione indipendente
+> ha trovato quello che mi era sfuggito, tra cui una vendita oltre le scorte con due ordini contemporanei: l'ho
+> riprodotta con un test e corretta con uno scarico atomico. Ogni passo è un commit con un tag, e la CI esegue test,
+> copertura, lint e controllo dei segreti.
 
 ## Le domande più probabili
 
@@ -27,14 +29,19 @@
 - *Cos'è un test in pausa?* Il test del comportamento corretto, scritto prima del fix e disattivato con `skip`. Suite
   verde, difetto documentato, criterio di accettazione pronto. → [passo 4](passi/04-test-in-pausa.md)
 - *Come sai che un test di sicurezza è valido?* Lo attivo prima del fix e controllo che fallisca per il motivo giusto.
-- *Copertura?* 92% delle righe, soglia 90% in CI. Non è un obiettivo in sé: le righe scoperte sono l'avvio e un ramo di
-  errore generico.
+- *Copertura?* 91% delle righe, soglia 90% in CI. Non è un obiettivo in sé: le righe scoperte sono l'avvio del server e
+  rami di errore che si raggiungono solo con un guasto vero.
 
 **Sicurezza**
 - *BOLA?* L'API controlla chi sei ma non se l'oggetto è tuo. Corretto filtrando sempre per azienda nel repository, con
   404 per le risorse altrui. → [passo 5](passi/05-correzioni.md)
-- *Mass assignment?* L'API salvava tutti i campi ricevuti, anche `tenantId`. Corretto con un elenco dei campi permessi.
+- *Mass assignment?* L'API salvava tutti i campi ricevuti, anche `tenantId`. Corretto con un elenco dei campi permessi,
+  prima nella modifica (passo 5) e poi anche nella creazione, dove l'ha trovato la revisione. → [passo 7](passi/07-revisione.md)
 - *Perché 404 e non 403?* Un 403 conferma che la risorsa esiste.
+- *Race condition?* Due ordini contemporanei sull'ultima merce passavano entrambi: controllo e scrittura erano due
+  operazioni separate. Ora lo scarico è una sola operazione atomica che riesce solo se le scorte bastano.
+- *Perché gli errori non mostrano dettagli?* Messaggi del database e stack con i percorsi aiutano chi attacca. Al
+  client va un messaggio generico, il dettaglio resta nel log del server.
 - *gitleaks?* Controlla che non entrino segreti nel repository, anche nella storia. L'eccezione vale solo per due chiavi
   finte documentate.
 
@@ -42,6 +49,8 @@
 - Node 22, Express 4, MongoDB 6 · Mocha, Chai, Sinon, Supertest, mongodb-memory-server · c8 · ESLint 9 · GitHub Actions · gitleaks.
 
 ## "L'hai scritto tu?"
-Rispondi com'è: *"L'ho progettato e guidato io, e il codice l'ho scritto con Claude Code seguendo un metodo: design,
-piano, un passo alla volta, revisione. Ogni scelta è documentata nelle schede e la so spiegare. È lo stesso modo in cui
-lavoro in tirocinio."* Poi apri un passo a caso e raccontalo: è la prova migliore.
+Rispondi com'è: *"L'ho impostato con un assistente AI: prima abbiamo scritto il design e il piano, poi Claude Code ha
+scritto il codice un passo alla volta e io ho rivisto ogni passo; alla fine c'è stata una revisione indipendente. Ogni
+scelta è documentata nelle schede e la so spiegare. È lo stesso metodo che uso in tirocinio."* Poi apri un passo a caso
+e raccontalo: è la prova migliore. Prima del colloquio, quindi, rileggi le sette schede e lancia almeno una volta i test
+di ogni tag.
