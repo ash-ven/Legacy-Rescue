@@ -21,10 +21,11 @@ describe('GET /products (comportamento attuale)', () => {
     expectGolden('products-sotto-scorta', await rossi().get('/products?low_stock=1'));
   });
 
-  it('una ricerca con "(" fa rispondere 500 (oggi)', async () => {
-    // Solo lo stato: il corpo è la pagina d'errore di Express con lo stack, non ha senso fotografarlo.
+  it('[cambiato al passo 6] la ricerca tratta "(" come testo: nessun risultato invece di 500', async () => {
     const res = await rossi().get('/products?search=(');
-    expect(res.status).to.equal(500);
+    expect(res.status).to.equal(200);
+    expect(res.body).to.deep.equal([]);
+    expectGolden('products-ricerca-parentesi', res);
   });
 });
 
@@ -60,8 +61,10 @@ describe('PUT /products/:id (comportamento attuale)', () => {
     expectGolden('products-modifica-tenant-elenco-bianchi', await bianchi().get('/products'));
   });
 
-  it('un ID non valido risponde 500 (oggi)', async () => {
+  it('[cambiato al passo 6] un ID non valido risponde 400', async () => {
     const res = await rossi().put('/products/non-un-id', { price: 1 });
-    expect(res.status).to.equal(500);
+    expect(res.status).to.equal(400);
+    expect(res.body).to.deep.equal({ error: 'invalid id' });
+    expectGolden('products-modifica-id-non-valido', res);
   });
 });

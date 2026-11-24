@@ -5,10 +5,13 @@ const products = (db) => db.collection('products');
 // Gli unici campi che una modifica può toccare: tenantId, _id e sku restano fuori.
 const EDITABLE_FIELDS = ['name', 'price', 'qty', 'minQty'];
 
+// La ricerca è testo semplice: i caratteri speciali delle espressioni regolari non hanno effetto.
+const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 function listProducts(db, tenantId, { search } = {}) {
   const query = { tenantId };
   if (search) {
-    query.name = new RegExp(search, 'i');
+    query.name = new RegExp(escapeRegExp(String(search)), 'i');
   }
   return products(db).find(query).sort({ sku: 1 }).toArray();
 }

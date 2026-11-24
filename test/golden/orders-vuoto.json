@@ -1,11 +1,7 @@
 {
-  "status": 201,
+  "status": 400,
   "contentType": "application/json; charset=utf-8",
   "body": {
-    "tenantId": "rossi",
-    "items": [],
-    "total": 0,
-    "createdAt": "2026-11-24T09:00:00.000Z",
-    "_id": "<id-1>"
+    "error": "invalid items"
   }
 }

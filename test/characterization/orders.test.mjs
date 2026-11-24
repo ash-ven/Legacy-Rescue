@@ -11,8 +11,10 @@ const ordina = (who, items) => who().post('/orders', { items });
 const scorte = async (who, sku) => (await who().get('/products')).body.find((p) => p.sku === sku).qty;
 
 describe('POST /orders (comportamento attuale)', () => {
-  it('crea un ordine: totale in virgola mobile non arrotondato, data dal momento della richiesta', async () => {
-    expectGolden('orders-crea', await ordina(rossi, [{ productId: ids.viti, qty: 3 }]));
+  it('[cambiato al passo 6] crea un ordine: totale arrotondato ai centesimi, data dal momento della richiesta', async () => {
+    const res = await ordina(rossi, [{ productId: ids.viti, qty: 3 }]);
+    expect(res.body.total).to.equal(0.3);
+    expectGolden('orders-crea', res);
   });
 
   it('scala le scorte dei prodotti ordinati', async () => {
@@ -44,13 +46,25 @@ describe('POST /orders (comportamento attuale)', () => {
     expectGolden('orders-prodotto-inesistente', await ordina(rossi, [{ productId: '000000000000000000000000', qty: 1 }]));
   });
 
-  it('[stranezza] una quantità negativa crea un ordine con totale negativo e aumenta le scorte', async () => {
-    expectGolden('orders-quantita-negativa', await ordina(rossi, [{ productId: ids.viti, qty: -2 }]));
-    expect(await scorte(rossi, 'VIT-4')).to.equal(102);
+  it('[cambiato al passo 6] una quantità negativa viene rifiutata: 400 e scorte intatte', async () => {
+    const res = await ordina(rossi, [{ productId: ids.viti, qty: -2 }]);
+    expect(res.status).to.equal(400);
+    expect(res.body).to.deep.equal({ error: 'invalid items' });
+    expectGolden('orders-quantita-negativa', res);
+    expect(await scorte(rossi, 'VIT-4')).to.equal(100);
   });
 
-  it('[stranezza] senza articoli crea un ordine vuoto da 0', async () => {
-    expectGolden('orders-vuoto', await ordina(rossi, []));
+  it('[cambiato al passo 6] un ordine senza articoli viene rifiutato: 400', async () => {
+    const res = await ordina(rossi, []);
+    expect(res.status).to.equal(400);
+    expect(res.body).to.deep.equal({ error: 'invalid items' });
+    expectGolden('orders-vuoto', res);
+  });
+
+  it('[cambiato al passo 6] un productId non valido viene rifiutato: 400', async () => {
+    const res = await ordina(rossi, [{ productId: 'non-un-id', qty: 1 }]);
+    expect(res.status).to.equal(400);
+    expect(res.body).to.deep.equal({ error: 'invalid items' });
   });
 
   it("[corretto al passo 5] un prodotto di un'altra azienda risulta inesistente e le sue scorte non cambiano", async () => {
@@ -80,8 +94,10 @@ describe('GET /orders e /orders/:id (comportamento attuale)', () => {
     expectGolden('orders-dettaglio-inesistente', await rossi().get('/orders/000000000000000000000000'));
   });
 
-  it('un ID non valido risponde 500 (oggi)', async () => {
+  it('[cambiato al passo 6] un ID non valido risponde 400', async () => {
     const res = await rossi().get('/orders/non-un-id');
-    expect(res.status).to.equal(500);
+    expect(res.status).to.equal(400);
+    expect(res.body).to.deep.equal({ error: 'invalid id' });
+    expectGolden('orders-dettaglio-id-non-valido', res);
   });
 });

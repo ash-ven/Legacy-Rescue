@@ -2,6 +2,7 @@ const express = require('express');
 const { HttpError, asyncHandler } = require('../errors');
 const { listOrders, findOrderById } = require('../repositories/orders');
 const { createOrder } = require('../services/orders');
+const { isValidId } = require('../validation');
 
 function ordersRouter(db) {
   const router = express.Router();
@@ -11,6 +12,9 @@ function ordersRouter(db) {
   }));
 
   router.get('/:id', asyncHandler(async (req, res) => {
+    if (!isValidId(req.params.id)) {
+      throw new HttpError(400, 'invalid id');
+    }
     const order = await findOrderById(db, req.tenantId, req.params.id);
     if (!order) {
       throw new HttpError(404, 'order not found');
@@ -19,7 +23,7 @@ function ordersRouter(db) {
   }));
 
   router.post('/', asyncHandler(async (req, res) => {
-    const order = await createOrder(db, req.tenant, req.body.items || []);
+    const order = await createOrder(db, req.tenant, req.body.items);
     res.status(201).json(order);
   }));
 

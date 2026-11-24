@@ -2,6 +2,7 @@ const express = require('express');
 const { HttpError, asyncHandler } = require('../errors');
 const { listProducts, insertProduct, updateProduct } = require('../repositories/products');
 const { isLowStock } = require('../services/stock');
+const { isValidId } = require('../validation');
 
 function productsRouter(db) {
   const router = express.Router();
@@ -26,6 +27,9 @@ function productsRouter(db) {
   }));
 
   router.put('/:id', asyncHandler(async (req, res) => {
+    if (!isValidId(req.params.id)) {
+      throw new HttpError(400, 'invalid id');
+    }
     const product = await updateProduct(db, req.tenantId, req.params.id, req.body);
     if (!product) {
       throw new HttpError(404, 'product not found');
